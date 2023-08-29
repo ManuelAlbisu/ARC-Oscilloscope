@@ -29,6 +29,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ARCOscilloscope
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        SlidersGroup.h SlidersGroup.cpp
+
+
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ARCOscilloscope APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
