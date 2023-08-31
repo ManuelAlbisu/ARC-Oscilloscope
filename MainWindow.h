@@ -1,17 +1,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "SlidersGroup.h"
-
 #include <QMainWindow>
 #include <QChartView>
 #include <QChart>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLineSeries>
-#include <QSlider>
 
-#include <QStackedWidget>
+// Testing
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QSlider>
+#include <QSpinBox>
+#include <QDockWidget>
 
 class MainWindow : public QMainWindow
 {
@@ -30,13 +31,7 @@ private:
     QChartView *m_graphView;
 
     // Handles the layout of the widgets
-    QHBoxLayout *m_mainLayout;
-    QVBoxLayout *m_sliderLayout;
-    QStackedWidget *m_stackedWidget;
-
-    // Handles the sliders
-    SlidersGroup *m_horizontalSliders;
-    SlidersGroup *m_verticalSliders;
+    QVBoxLayout *m_mainLayout;
 
     // Handles the functions of the graph
     QLineSeries *m_sine;

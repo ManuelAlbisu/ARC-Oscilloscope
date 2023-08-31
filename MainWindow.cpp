@@ -53,29 +53,30 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    //  Creates the sliders for editing x & y axis
-    //QSlider *m_xSlider = new QSlider(Qt::Horizontal);
-    //QSlider *m_ySlider = new QSlider(Qt::Horizontal);
+    // Creates the voltage slider and spin box
+    QSpinBox *spinBox = new QSpinBox;
+    QSlider *slider = new QSlider(Qt::Horizontal);
 
-    //m_xSlider->setRange(0, 2 * m_period);
-    //m_ySlider->setRange(-m_amplitude * 2, m_amplitude * 2);
+    slider->setRange(0, 60);
+    spinBox->setRange(0, 60);
 
-    //m_sliderLayout = new QVBoxLayout;
-    //m_sliderLayout->setAlignment(Qt::AlignBottom);
-    //m_sliderLayout->addWidget(m_xSlider);
-    //m_sliderLayout->addWidget(m_ySlider);
+    connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
+    connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
 
-    m_horizontalSliders = new SlidersGroup(Qt::Horizontal, "Horizontal");
-    m_verticalSliders = new SlidersGroup(Qt::Vertical, "Vertical");
+    spinBox->setValue(5);
 
-    m_stackedWidget = new QStackedWidget;
-    m_stackedWidget->addWidget(m_horizontalSliders);
-    m_stackedWidget->addWidget(m_verticalSliders);
+    // Create layout for controls
+    //QHBoxLayout *dockLayout = new QHBoxLayout;
+    //dockLayout->addWidget(spinBox);
+    //dockLayout->addWidget(slider);
 
-    // Creates the main layout
-    m_mainLayout = new QHBoxLayout;
-    m_mainLayout->addLayout(m_sliderLayout);
-    m_graphView->setLayout(m_mainLayout);
+    // Creates a dock
+    QDockWidget *dockWidget = new QDockWidget("Oscilloscope controls");
+    dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+    dockWidget->setWidget(spinBox);
+    dockWidget->setWidget(slider);
+
 
 
 
