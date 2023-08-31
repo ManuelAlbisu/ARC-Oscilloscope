@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
 #include <QtMath>
-#include <QValueAxis>
+//#include <QValueAxis>
 #include <QTimer>
 #include <QDebug>
 
@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_cosine = new QLineSeries();
 
     // Creates x-axis for time in seconds
-    auto xAxis = new QValueAxis;
+    xAxis = new QValueAxis;
     xAxis->setRange(0, m_period);
-    xAxis->setTitleText("Time (s");
+    xAxis->setTitleText("Time (s)");
 
     // Creates y-axis for voltage
     auto yAxis = new QValueAxis;
@@ -51,8 +51,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_graphScene->setTitle("ARC Oscilloscope");
 
 
-
-
     // Creates the voltage slider and spin box
     QSpinBox *spinBox = new QSpinBox;
     QSlider *slider = new QSlider(Qt::Horizontal);
@@ -62,27 +60,34 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
     connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
 
     spinBox->setValue(5);
 
     // Create layout for controls
-    //QHBoxLayout *dockLayout = new QHBoxLayout;
-    //dockLayout->addWidget(spinBox);
-    //dockLayout->addWidget(slider);
+    QVBoxLayout *dockLayout = new QVBoxLayout;
+    dockLayout->addWidget(m_graphView);
+
+
+    slider->setMaximumWidth(width()*0.5);
+    dockLayout->addWidget(slider);
+    dockLayout->addWidget(spinBox);
 
     // Creates a dock
     QDockWidget *dockWidget = new QDockWidget("Oscilloscope controls");
     dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
-    addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-    dockWidget->setWidget(spinBox);
-    dockWidget->setWidget(slider);
-
-
+    dockWidget->setLayout(dockLayout);
+    //addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+    //dockWidget->setWidget(spinBox);
+    //dockWidget->setWidget(slider);
+    QWidget *CentralWidget = new QWidget;
+    CentralWidget->setLayout(dockLayout);
 
 
 
     // Sets the graph as the applications central widget
-    setCentralWidget(m_graphView);
+    //setLayout(dockLayout);
+    setCentralWidget(CentralWidget);
     resize(1280, 720);
 
     // Sets a timer to update the graphs contents in milliseconds
@@ -114,4 +119,10 @@ void MainWindow::update()
     // Plots time and voltage to the graph
     m_sine->append(m_time, y1);
     m_cosine->append(m_time, y2);
+    xAxis->setRange(0, m_period);
+
+}
+
+void MainWindow::setPeriod(int p){
+    m_period = p;
 }

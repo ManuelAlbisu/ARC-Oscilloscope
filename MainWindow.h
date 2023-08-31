@@ -13,6 +13,8 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QDockWidget>
+#include <QValueAxis>
+
 
 class MainWindow : public QMainWindow
 {
@@ -24,6 +26,7 @@ public:
 
 private slots:
     void update();
+    void setPeriod(int p);
 
 private:
     // Handles the visual representation of the graph
@@ -43,6 +46,7 @@ private:
     qreal m_phase;
     qreal m_time;
     qreal m_deltaTime;
+    QValueAxis * xAxis;
 };
 
 #endif // MAINWINDOW_H
