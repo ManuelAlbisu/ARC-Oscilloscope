@@ -3,6 +3,14 @@
 #include <QtMath>
 #include <QTimer>
 #include <QDebug>
+#include <QSlider>
+#include <QSpinBox>
+
+// Testing
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QDockWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Creates y-axis for voltage
     m_yAxis = new QValueAxis;
-    m_yAxis->setRange(-m_amplitude, m_amplitude);
     m_yAxis->setTitleText("Voltage (V)");
 
     // Assigns position of x & y axis to the graph
@@ -47,29 +54,32 @@ MainWindow::MainWindow(QWidget *parent)
     m_graphView->chart()->legend()->hide();
     m_graphView->chart()->setTitle("ARC Oscilloscope");
 
-    // Creates the voltage slider and spin box
-    QSpinBox *m_spinBox = new QSpinBox;
-    QSlider *m_slider = new QSlider(Qt::Horizontal);
-
-    m_slider->setRange(1, 60);
-    m_spinBox->setRange(1, 60);
-
-    connect(m_spinBox, SIGNAL(valueChanged(int)), m_slider, SLOT(setValue(int)));
-    connect(m_slider, SIGNAL(valueChanged(int)), m_spinBox, SLOT(setValue(int)));
-    connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
-
-    m_spinBox->setValue(5);
+    periodControl();
+    amplitudeControl();
 
     QWidget *centralWidget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    QHBoxLayout *sliderLayout = new QHBoxLayout;
+    QHBoxLayout *periodLayout = new QHBoxLayout;
+    QVBoxLayout *amplitudeLayout = new QVBoxLayout;
+
+    periodLayout->addWidget(m_perSpinBox);
+    periodLayout->addWidget(m_perSlider);
+
+    QDockWidget *periodDock = new QDockWidget("Period controls");
+    periodDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    periodDock->setLayout(periodLayout);
+
+    amplitudeLayout->addWidget(m_ampSlider);
+    amplitudeLayout->addWidget(m_ampSpinBox);
+
+    QDockWidget *amplitudeDock = new QDockWidget("Amplitude controls");
+    amplitudeDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    amplitudeDock->setLayout(amplitudeLayout);
 
     mainLayout->addWidget(m_graphView);
 
-    sliderLayout->addWidget(m_spinBox);
-    sliderLayout->addWidget(m_slider);
-
-    mainLayout->addLayout(sliderLayout);
+    mainLayout->addLayout(amplitudeLayout);
+    mainLayout->addLayout(periodLayout);
     centralWidget->setLayout(mainLayout);
 
     setCentralWidget(centralWidget);
@@ -125,13 +135,46 @@ void MainWindow::update() {
     // Plots time and voltage to the graph
     m_sine->append(m_time, y1);
     m_cosine->append(m_time, y2);
+
+    // Switch from using period/amplitude to voltage/time
     m_xAxis->setRange(0, m_period);
+    m_yAxis->setRange(-m_amplitude, m_amplitude);
 }
 
 void MainWindow::setPeriod(int p) {
     m_period = p;
 }
 
-void MainWindow::layout() {
+void MainWindow::setAmplitude(int a) {
+    m_amplitude = a;
+}
 
+// Creates widgets for controlling the period of the (co)sine function
+void MainWindow::periodControl() {
+    m_perSpinBox = new QSpinBox;
+    m_perSlider = new QSlider(Qt::Horizontal);
+
+    m_perSlider->setRange(1, 60);
+    m_perSpinBox->setRange(1, 60);
+
+    connect(m_perSpinBox, SIGNAL(valueChanged(int)), m_perSlider, SLOT(setValue(int)));
+    connect(m_perSlider, SIGNAL(valueChanged(int)), m_perSpinBox, SLOT(setValue(int)));
+    connect(m_perSlider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
+
+    m_perSpinBox->setValue(5);
+}
+
+// Creates widgets for controlling the amplitude of the (co)sine funtion
+void MainWindow::amplitudeControl() {
+    m_ampSpinBox = new QSpinBox;
+    m_ampSlider = new QSlider(Qt::Vertical);
+
+    m_ampSlider->setRange(1, 10);
+    m_ampSpinBox->setRange(1, 10);
+
+    connect(m_ampSpinBox, SIGNAL(valueChanged(int)), m_ampSlider, SLOT(setValue(int)));
+    connect(m_ampSlider, SIGNAL(valueChanged(int)), m_ampSpinBox, SLOT(setValue(int)));
+    connect(m_ampSlider, SIGNAL(valueChanged(int)), this, SLOT(setAmplitude(int)));
+
+    m_ampSpinBox->setValue(2);
 }

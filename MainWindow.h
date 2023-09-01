@@ -3,18 +3,11 @@
 
 #include <QMainWindow>
 #include <QChartView>
-#include <QChart>
 #include <QLineSeries>
-
-// Testing
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QSlider>
-#include <QSpinBox>
-#include <QDockWidget>
 #include <QValueAxis>
 
+#include <QSpinBox>
+#include <QSlider>
 
 class MainWindow : public QMainWindow
 {
@@ -27,15 +20,13 @@ public:
 private slots:
     void update();
     void setPeriod(int p);
-    void layout();
+    void setAmplitude(int a);
+    void periodControl();
+    void amplitudeControl();
 
 private:
     // Handles the visual representation of the graph
-    QChart *m_graphScene;
     QChartView *m_graphView;
-
-    // Handles the layout of the widgets
-    QVBoxLayout *m_mainLayout;
 
     // Handles the functions of the graph
     QLineSeries *m_sine;
@@ -50,9 +41,11 @@ private:
 
     QValueAxis *m_xAxis;
     QValueAxis *m_yAxis;
-    QSpinBox *m_spinBox;
-    QSlider *m_slider;
 
+    QSpinBox *m_perSpinBox;
+    QSpinBox *m_ampSpinBox;
+    QSlider *m_perSlider;
+    QSlider *m_ampSlider;
 };
 
 #endif // MAINWINDOW_H
