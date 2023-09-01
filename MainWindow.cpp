@@ -16,9 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     // Set variables
-    m_amplitude = 2.0;
-    m_period = 5.0;
-    m_phase = 0.0;
+    //m_amplitude = 2.0;
+    //m_period = 5.0;
+    //m_phase = 0.0;
 
     m_time = 0.0;
     m_deltaTime = 0.01;
@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     periodControl();
     amplitudeControl();
+    phaseControl();
 
     QWidget *centralWidget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -84,29 +85,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(centralWidget);
     resize(1280, 720);
-
-    // Create layout for controls
-    //QVBoxLayout *dockLayout = new QVBoxLayout;
-    //dockLayout->addWidget(m_graphView);
-
-    //m_slider->setMaximumWidth(width()*0.5);
-    //dockLayout->addWidget(m_slider);
-    //dockLayout->addWidget(m_spinBox);
-
-    // Creates a dock
-    //QDockWidget *dockWidget = new QDockWidget("Oscilloscope controls");
-    //dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
-    //dockWidget->setLayout(dockLayout);
-    //addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-    //dockWidget->setWidget(spinBox);
-    //dockWidget->setWidget(slider);
-    //QWidget *CentralWidget = new QWidget;
-    //CentralWidget->setLayout(dockLayout);
-
-    // Sets the graph as the applications central widget
-    //setLayout(dockLayout);
-    //setCentralWidget(CentralWidget);
-    //resize(1280, 720);
 
     // Sets a timer to update the graphs contents in milliseconds
     QTimer *timer = new QTimer(this);
@@ -141,12 +119,16 @@ void MainWindow::update() {
     m_yAxis->setRange(-m_amplitude, m_amplitude);
 }
 
-void MainWindow::setPeriod(int p) {
-    m_period = p;
+void MainWindow::setPeriod(int period) {
+    m_period = period;
 }
 
-void MainWindow::setAmplitude(int a) {
-    m_amplitude = a;
+void MainWindow::setAmplitude(int amplitude) {
+    m_amplitude = amplitude;
+}
+
+void MainWindow::setPhase(int phase) {
+    m_phase = phase;
 }
 
 // Creates widgets for controlling the period of the (co)sine function
@@ -177,4 +159,17 @@ void MainWindow::amplitudeControl() {
     connect(m_ampSlider, SIGNAL(valueChanged(int)), this, SLOT(setAmplitude(int)));
 
     m_ampSpinBox->setValue(2);
+}
+
+void MainWindow::phaseControl() {
+    m_phaseDial = new QDial;
+    m_phaseSpinBox = new QSpinBox;
+
+    m_phaseDial->setRange(0, 10);
+
+    connect(m_phaseSpinBox, SIGNAL(valueChanged(int)), m_phaseDial, SLOT(setValue(int)));
+    connect(m_phaseDial, SIGNAL(valueChanged(int)), m_phaseSpinBox, SLOT(setValue(int)));
+    connect(m_phaseDial, SIGNAL(valueChanged(int)), this, SLOT(setPhase(int)));
+
+    m_phaseSpinBox->setValue(0);
 }

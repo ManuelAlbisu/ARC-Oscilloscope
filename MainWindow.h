@@ -8,6 +8,7 @@
 
 #include <QSpinBox>
 #include <QSlider>
+#include <QDial>
 
 class MainWindow : public QMainWindow
 {
@@ -19,10 +20,12 @@ public:
 
 private slots:
     void update();
-    void setPeriod(int p);
-    void setAmplitude(int a);
+    void setPeriod(int period);
+    void setAmplitude(int amplitude);
+    void setPhase(int phase);
     void periodControl();
     void amplitudeControl();
+    void phaseControl();
 
 private:
     // Handles the visual representation of the graph
@@ -43,9 +46,11 @@ private:
     QValueAxis *m_yAxis;
 
     QSpinBox *m_perSpinBox;
-    QSpinBox *m_ampSpinBox;
     QSlider *m_perSlider;
+    QSpinBox *m_ampSpinBox;
     QSlider *m_ampSlider;
+    QSpinBox *m_phaseSpinBox;
+    QDial *m_phaseDial;
 };
 
 #endif // MAINWINDOW_H
