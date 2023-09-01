@@ -27,6 +27,7 @@ public:
 private slots:
     void update();
     void setPeriod(int p);
+    void layout();
 
 private:
     // Handles the visual representation of the graph
@@ -46,7 +47,12 @@ private:
     qreal m_phase;
     qreal m_time;
     qreal m_deltaTime;
-    QValueAxis * xAxis;
+
+    QValueAxis *m_xAxis;
+    QValueAxis *m_yAxis;
+    QSpinBox *m_spinBox;
+    QSlider *m_slider;
+
 };
 
 #endif // MAINWINDOW_H

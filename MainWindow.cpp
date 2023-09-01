@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 
 #include <QtMath>
-//#include <QValueAxis>
 #include <QTimer>
 #include <QDebug>
 
@@ -20,75 +19,84 @@ MainWindow::MainWindow(QWidget *parent)
     m_cosine = new QLineSeries();
 
     // Creates x-axis for time in seconds
-    xAxis = new QValueAxis;
-    xAxis->setRange(0, m_period);
-    xAxis->setTitleText("Time (s)");
+    m_xAxis = new QValueAxis;
+    m_xAxis->setTitleText("Time (s)");
 
     // Creates y-axis for voltage
-    auto yAxis = new QValueAxis;
-    yAxis->setRange(-m_amplitude, m_amplitude);
-    yAxis->setTitleText("Voltage (V)");
+    m_yAxis = new QValueAxis;
+    m_yAxis->setRange(-m_amplitude, m_amplitude);
+    m_yAxis->setTitleText("Voltage (V)");
 
     // Assigns position of x & y axis to the graph
     m_graphView = new QChartView;
-    m_graphScene = m_graphView->chart();
-    m_graphScene->addAxis(xAxis, Qt::AlignBottom);
-    m_graphScene->addAxis(yAxis, Qt::AlignLeft);
+    m_graphView->chart()->addAxis(m_xAxis, Qt::AlignBottom);
+    m_graphView->chart()->addAxis(m_yAxis, Qt::AlignLeft);
 
     // Adds functions to the graph
-    m_graphScene->addSeries(m_sine);
-    m_graphScene->addSeries(m_cosine);
+    m_graphView->chart()->addSeries(m_sine);
+    m_graphView->chart()->addSeries(m_cosine);
 
     // Assigns x & y axis to the sine/cosine function of the graph
-    m_sine->attachAxis(xAxis);
-    m_sine->attachAxis(yAxis);
+    m_sine->attachAxis(m_xAxis);
+    m_sine->attachAxis(m_yAxis);
 
-    m_cosine->attachAxis(xAxis);
-    m_cosine->attachAxis(yAxis);
+    m_cosine->attachAxis(m_xAxis);
+    m_cosine->attachAxis(m_yAxis);
 
     // Sets the graphs title
-    m_graphScene->legend()->hide();
-    m_graphScene->setTitle("ARC Oscilloscope");
-
+    m_graphView->chart()->legend()->hide();
+    m_graphView->chart()->setTitle("ARC Oscilloscope");
 
     // Creates the voltage slider and spin box
-    QSpinBox *spinBox = new QSpinBox;
-    QSlider *slider = new QSlider(Qt::Horizontal);
+    QSpinBox *m_spinBox = new QSpinBox;
+    QSlider *m_slider = new QSlider(Qt::Horizontal);
 
-    slider->setRange(0, 60);
-    spinBox->setRange(0, 60);
+    m_slider->setRange(1, 60);
+    m_spinBox->setRange(1, 60);
 
-    connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
-    connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
+    connect(m_spinBox, SIGNAL(valueChanged(int)), m_slider, SLOT(setValue(int)));
+    connect(m_slider, SIGNAL(valueChanged(int)), m_spinBox, SLOT(setValue(int)));
+    connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
 
-    spinBox->setValue(5);
+    m_spinBox->setValue(5);
+
+    QWidget *centralWidget = new QWidget;
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    QHBoxLayout *sliderLayout = new QHBoxLayout;
+
+    mainLayout->addWidget(m_graphView);
+
+    sliderLayout->addWidget(m_spinBox);
+    sliderLayout->addWidget(m_slider);
+
+    mainLayout->addLayout(sliderLayout);
+    centralWidget->setLayout(mainLayout);
+
+    setCentralWidget(centralWidget);
+    resize(1280, 720);
 
     // Create layout for controls
-    QVBoxLayout *dockLayout = new QVBoxLayout;
-    dockLayout->addWidget(m_graphView);
+    //QVBoxLayout *dockLayout = new QVBoxLayout;
+    //dockLayout->addWidget(m_graphView);
 
-
-    slider->setMaximumWidth(width()*0.5);
-    dockLayout->addWidget(slider);
-    dockLayout->addWidget(spinBox);
+    //m_slider->setMaximumWidth(width()*0.5);
+    //dockLayout->addWidget(m_slider);
+    //dockLayout->addWidget(m_spinBox);
 
     // Creates a dock
-    QDockWidget *dockWidget = new QDockWidget("Oscilloscope controls");
-    dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
-    dockWidget->setLayout(dockLayout);
+    //QDockWidget *dockWidget = new QDockWidget("Oscilloscope controls");
+    //dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    //dockWidget->setLayout(dockLayout);
     //addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
     //dockWidget->setWidget(spinBox);
     //dockWidget->setWidget(slider);
-    QWidget *CentralWidget = new QWidget;
-    CentralWidget->setLayout(dockLayout);
-
-
+    //QWidget *CentralWidget = new QWidget;
+    //CentralWidget->setLayout(dockLayout);
 
     // Sets the graph as the applications central widget
     //setLayout(dockLayout);
-    setCentralWidget(CentralWidget);
-    resize(1280, 720);
+    //setCentralWidget(CentralWidget);
+    //resize(1280, 720);
 
     // Sets a timer to update the graphs contents in milliseconds
     QTimer *timer = new QTimer(this);
@@ -96,13 +104,11 @@ MainWindow::MainWindow(QWidget *parent)
     timer->start(1000 * m_deltaTime);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     // Destroys the main window
 }
 
-void MainWindow::update()
-{
+void MainWindow::update() {
     m_time += m_deltaTime;
 
     // Restarts plotting if graph reaches end of range
@@ -119,10 +125,13 @@ void MainWindow::update()
     // Plots time and voltage to the graph
     m_sine->append(m_time, y1);
     m_cosine->append(m_time, y2);
-    xAxis->setRange(0, m_period);
-
+    m_xAxis->setRange(0, m_period);
 }
 
-void MainWindow::setPeriod(int p){
+void MainWindow::setPeriod(int p) {
     m_period = p;
+}
+
+void MainWindow::layout() {
+
 }
