@@ -9,6 +9,7 @@
 #include <QSpinBox>
 #include <QSlider>
 #include <QDial>
+#include <QLabel>
 
 class MainWindow : public QMainWindow
 {
@@ -47,10 +48,15 @@ private:
 
     QSpinBox *m_perSpinBox;
     QSlider *m_perSlider;
+    QLabel *m_perLabel;
+
     QSpinBox *m_ampSpinBox;
     QSlider *m_ampSlider;
+    QLabel *m_ampLabel;
+
     QSpinBox *m_phaseSpinBox;
     QDial *m_phaseDial;
+    QLabel *m_phaseLabel;
 };
 
 #endif // MAINWINDOW_H

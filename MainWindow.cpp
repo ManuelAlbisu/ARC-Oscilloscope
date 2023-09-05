@@ -58,20 +58,28 @@ MainWindow::MainWindow(QWidget *parent)
     amplitudeControl();
     phaseControl();
 
+    // Layout
     QWidget *centralWidget = new QWidget;
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *periodLayout = new QHBoxLayout;
-    QVBoxLayout *amplitudeLayout = new QVBoxLayout;
+    QHBoxLayout *amplitudeLayout = new QHBoxLayout;
+    QHBoxLayout *phaseLayout = new QHBoxLayout;
 
+    periodLayout->addWidget(m_perLabel);
     periodLayout->addWidget(m_perSpinBox);
     periodLayout->addWidget(m_perSlider);
+
+    phaseLayout->addWidget(m_phaseLabel);
+    phaseLayout->addWidget(m_phaseSpinBox);
+    phaseLayout->addWidget(m_phaseDial);
 
     QDockWidget *periodDock = new QDockWidget("Period controls");
     periodDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     periodDock->setLayout(periodLayout);
 
-    amplitudeLayout->addWidget(m_ampSlider);
+    amplitudeLayout->addWidget(m_ampLabel);
     amplitudeLayout->addWidget(m_ampSpinBox);
+    amplitudeLayout->addWidget(m_ampSlider);
 
     QDockWidget *amplitudeDock = new QDockWidget("Amplitude controls");
     amplitudeDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -79,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainLayout->addWidget(m_graphView);
 
+    periodLayout->addLayout(phaseLayout);
     mainLayout->addLayout(amplitudeLayout);
     mainLayout->addLayout(periodLayout);
     centralWidget->setLayout(mainLayout);
@@ -135,6 +144,9 @@ void MainWindow::setPhase(int phase) {
 void MainWindow::periodControl() {
     m_perSpinBox = new QSpinBox;
     m_perSlider = new QSlider(Qt::Horizontal);
+    m_perLabel = new QLabel("Period");
+
+    m_perLabel->setBuddy(m_perSpinBox);
 
     m_perSlider->setRange(1, 60);
     m_perSpinBox->setRange(1, 60);
@@ -149,7 +161,10 @@ void MainWindow::periodControl() {
 // Creates widgets for controlling the amplitude of the (co)sine funtion
 void MainWindow::amplitudeControl() {
     m_ampSpinBox = new QSpinBox;
-    m_ampSlider = new QSlider(Qt::Vertical);
+    m_ampSlider = new QSlider(Qt::Horizontal);
+    m_ampLabel = new QLabel("Amplitude");
+
+    m_ampLabel->setBuddy(m_ampSpinBox);
 
     m_ampSlider->setRange(1, 10);
     m_ampSpinBox->setRange(1, 10);
@@ -164,6 +179,9 @@ void MainWindow::amplitudeControl() {
 void MainWindow::phaseControl() {
     m_phaseDial = new QDial;
     m_phaseSpinBox = new QSpinBox;
+    m_phaseLabel = new QLabel("Phase");
+
+    m_phaseLabel->setBuddy(m_phaseSpinBox);
 
     m_phaseDial->setRange(0, 10);
 
