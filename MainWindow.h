@@ -10,6 +10,8 @@
 #include <QSlider>
 #include <QDial>
 #include <QLabel>
+#include <QListWidget>
+#include <QLineEdit>
 
 class MainWindow : public QMainWindow
 {
@@ -28,7 +30,15 @@ private slots:
     void amplitudeControl();
     void phaseControl();
 
+    void consoleCommandInput();
+
 private:
+    void createChartView();
+    void createConsoleDock();
+    void createControlDock();
+
+    void execute(const QString &command);
+
     // Handles the visual representation of the graph
     QChartView *m_graphView;
 
@@ -57,6 +67,11 @@ private:
     QSpinBox *m_phaseSpinBox;
     QDial *m_phaseDial;
     QLabel *m_phaseLabel;
+
+    // Console
+    QListWidget *m_console;
+    QLineEdit *m_input;
+
 };
 
 #endif // MAINWINDOW_H

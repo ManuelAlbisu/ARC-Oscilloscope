@@ -12,9 +12,26 @@
 #include <QGridLayout>
 #include <QDockWidget>
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
+    : QMainWindow(parent) {
+    resize(1280, 720);
+    // Populate window
+    createChartView();
+    createConsoleDock();
+    createControlDock();
+    // Sets a timer to update the graphs contents in milliseconds
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update));
+    timer->start(1000 * m_deltaTime);
+}
+
+MainWindow::~MainWindow() {
+    // Destroys the main window
+}
+
+void MainWindow::createChartView() {
     // Set variables
     //m_amplitude = 2.0;
     //m_period = 5.0;
@@ -54,55 +71,76 @@ MainWindow::MainWindow(QWidget *parent)
     m_graphView->chart()->legend()->hide();
     m_graphView->chart()->setTitle("ARC Oscilloscope");
 
-    periodControl();
-    amplitudeControl();
-    phaseControl();
-
-    // Layout
-    QWidget *centralWidget = new QWidget;
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    QHBoxLayout *periodLayout = new QHBoxLayout;
-    QHBoxLayout *amplitudeLayout = new QHBoxLayout;
-    QHBoxLayout *phaseLayout = new QHBoxLayout;
-
-    periodLayout->addWidget(m_perLabel);
-    periodLayout->addWidget(m_perSpinBox);
-    periodLayout->addWidget(m_perSlider);
-
-    phaseLayout->addWidget(m_phaseLabel);
-    phaseLayout->addWidget(m_phaseSpinBox);
-    phaseLayout->addWidget(m_phaseDial);
-
-    QDockWidget *periodDock = new QDockWidget("Period controls");
-    periodDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
-    periodDock->setLayout(periodLayout);
-
-    amplitudeLayout->addWidget(m_ampLabel);
-    amplitudeLayout->addWidget(m_ampSpinBox);
-    amplitudeLayout->addWidget(m_ampSlider);
-
-    QDockWidget *amplitudeDock = new QDockWidget("Amplitude controls");
-    amplitudeDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    amplitudeDock->setLayout(amplitudeLayout);
-
-    mainLayout->addWidget(m_graphView);
-
-    periodLayout->addLayout(phaseLayout);
-    mainLayout->addLayout(amplitudeLayout);
-    mainLayout->addLayout(periodLayout);
-    centralWidget->setLayout(mainLayout);
-
-    setCentralWidget(centralWidget);
-    resize(1280, 720);
-
-    // Sets a timer to update the graphs contents in milliseconds
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update));
-    timer->start(1000 * m_deltaTime);
+    setCentralWidget(m_graphView);
 }
 
-MainWindow::~MainWindow() {
-    // Destroys the main window
+void MainWindow::createConsoleDock() {
+    QDockWidget *dock = new QDockWidget(tr("Controls"), this);
+    dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    m_console = new QListWidget;
+    m_input = new QLineEdit;
+
+    auto v = new QVBoxLayout;
+    v->addWidget(m_console);
+    v->addWidget(m_input);
+
+    auto w = new QWidget;
+    w->setLayout(v);
+
+    dock->setWidget(w);
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    //m_viewMenu->addAction(dock->toggleViewAction());
+
+    connect(m_input, SIGNAL(returnPressed()), this, SLOT(consoleCommandInput()));
+}
+
+void MainWindow::createControlDock() {
+    QDockWidget *dock = new QDockWidget(tr("Controls"), this);
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    m_perSpinBox = new QSpinBox;
+    m_perSlider = new QSlider(Qt::Horizontal);
+    m_perLabel = new QLabel("Period");
+
+    m_perLabel->setBuddy(m_perSpinBox);
+
+    m_perSlider->setRange(1, 60);
+    m_perSpinBox->setRange(1, 60);
+
+    connect(m_perSpinBox, SIGNAL(valueChanged(int)), m_perSlider, SLOT(setValue(int)));
+    connect(m_perSlider, SIGNAL(valueChanged(int)), m_perSpinBox, SLOT(setValue(int)));
+    connect(m_perSlider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
+
+    m_perSpinBox->setValue(5);
+
+    auto v = new QVBoxLayout;
+    v->addWidget(m_perSpinBox);
+    v->addWidget(m_perSlider);
+    v->addWidget(m_perLabel);
+
+    auto w = new QWidget;
+    w->setLayout(v);
+
+    dock->setWidget(w);
+    addDockWidget(Qt::RightDockWidgetArea, dock);
+    //m_viewMenu->addAction(dock->toggleViewAction());
+}
+
+void MainWindow::consoleCommandInput() {
+    auto command = m_input->text();
+    m_console->addItem(command);
+    execute(command);
+    m_input->clear();
+}
+
+void MainWindow::execute(const QString &command) {
+    if (command == "clear")
+        m_console->clear();
+    else if (command == "info") {
+        m_console->addItem("Many is awesome!");
+        m_console->addItem("Luiz is great!");
+    }
 }
 
 void MainWindow::update() {
@@ -142,20 +180,7 @@ void MainWindow::setPhase(int phase) {
 
 // Creates widgets for controlling the period of the (co)sine function
 void MainWindow::periodControl() {
-    m_perSpinBox = new QSpinBox;
-    m_perSlider = new QSlider(Qt::Horizontal);
-    m_perLabel = new QLabel("Period");
 
-    m_perLabel->setBuddy(m_perSpinBox);
-
-    m_perSlider->setRange(1, 60);
-    m_perSpinBox->setRange(1, 60);
-
-    connect(m_perSpinBox, SIGNAL(valueChanged(int)), m_perSlider, SLOT(setValue(int)));
-    connect(m_perSlider, SIGNAL(valueChanged(int)), m_perSpinBox, SLOT(setValue(int)));
-    connect(m_perSlider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
-
-    m_perSpinBox->setValue(5);
 }
 
 // Creates widgets for controlling the amplitude of the (co)sine funtion
