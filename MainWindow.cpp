@@ -53,6 +53,9 @@ void MainWindow::createContextMenu() {
 }
 
 void MainWindow::createChartView() {
+    m_time = 0.0;
+    m_deltaTime = 0.01;
+
     m_sine = new QLineSeries();
     m_cosine = new QLineSeries();
 
@@ -78,10 +81,6 @@ void MainWindow::createChartView() {
     m_cosine->attachAxis(m_xAxis);
     m_cosine->attachAxis(m_yAxis);
 
-    // Sets bounds for wave function
-    m_xAxis->setRange(0, 5);
-    m_yAxis->setRange(-2, 2);
-
     setCentralWidget(graphView);
 }
 
@@ -97,30 +96,33 @@ void MainWindow::createControlsDock() {
                           | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     // Creates layouts
-    auto ampHLayout = new QHBoxLayout;
+    auto ampHLayout = new QHBoxLayout();
     ampHLayout->addWidget(m_ampLabel);
     ampHLayout->addWidget(m_ampSpinBox);
     ampHLayout->addWidget(m_ampSlider);
 
-    auto perHLayout = new QHBoxLayout;
+    auto perHLayout = new QHBoxLayout();
     perHLayout->addWidget(m_perLabel);
     perHLayout->addWidget(m_perSpinBox);
     perHLayout->addWidget(m_perSlider);
 
-    auto phaseHLayout = new QHBoxLayout;
+    auto sliderVLayout = new QVBoxLayout();
+    sliderVLayout->addLayout(ampHLayout);
+    sliderVLayout->addLayout(perHLayout);
+
+    auto phaseHLayout = new QHBoxLayout();
     phaseHLayout->addWidget(m_phaseLabel);
     phaseHLayout->addWidget(m_phaseSpinBox);
     phaseHLayout->addWidget(m_phaseDial);
 
     // Collects layouts into a single layout
-    auto v = new QVBoxLayout;
-    v->addLayout(ampHLayout);
-    v->addLayout(perHLayout);
-    v->addLayout(phaseHLayout);
+    auto h = new QHBoxLayout();
+    h->addLayout(sliderVLayout);
+    h->addLayout(phaseHLayout);
 
     // Sets layout to a widget
-    auto w = new QWidget;
-    w->setLayout(v);
+    auto w = new QWidget();
+    w->setLayout(h);
 
     // Sets widgets to dock
     dock->setWidget(w);
@@ -177,9 +179,6 @@ void MainWindow::execute(const QString &command) {
 }
 
 void MainWindow::update() {
-    m_time = 0.0;
-    m_deltaTime = 0.001;
-
     m_time += m_deltaTime;
 
     // Restarts plotting if wave reaches end of range
@@ -196,6 +195,10 @@ void MainWindow::update() {
     // Plots x & y points to the graph
     m_sine->append(m_time, ySin);
     m_cosine->append(m_time, yCos);
+
+    // Sets bounds for wave function
+    m_xAxis->setRange(0, m_period);
+    m_yAxis->setRange((-m_amplitude - 2), (m_amplitude + 2));
 }
 
 void MainWindow::amplitudeControl() {
