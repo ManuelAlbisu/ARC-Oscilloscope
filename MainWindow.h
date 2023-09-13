@@ -2,16 +2,18 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QChartView>
+
 #include <QLineSeries>
 #include <QValueAxis>
-
-#include <QSpinBox>
-#include <QSlider>
-#include <QDial>
-#include <QLabel>
 #include <QListWidget>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMenuBar>
+#include <QAction>
+#include <QSpinBox>
+#include <QSlider>
+#include <QLabel>
+#include <QDial>
 
 class MainWindow : public QMainWindow
 {
@@ -23,39 +25,47 @@ public:
 
 private slots:
     void update();
-    void setPeriod(int period);
-    void setAmplitude(int amplitude);
-    void setPhase(int phase);
     void periodControl();
     void amplitudeControl();
     void phaseControl();
-
     void consoleCommandInput();
 
-private:
-    void createChartView();
-    void createConsoleDock();
-    void createControlDock();
+    // Accessors
+    void setAmplitude(int amplitude);
+    void setPeriod(int period);
+    void setPhase(int phase);
 
+private:
+    void createActions();
+    void createToolBar();
+    void createMenuBar();
+    void createContextMenu();
+    void createChartView();
+    void createControlsDock();
+    void createConsoleDock();
     void execute(const QString &command);
 
-    // Handles the visual representation of the graph
-    QChartView *m_graphView;
+    // Actions
+    QAction *m_clearConsoleAction;
 
-    // Handles the functions of the graph
+    // Menus
+    QMenu *m_viewMenu;
+
+    // Wave function
     QLineSeries *m_sine;
     QLineSeries *m_cosine;
 
-    // y(t) = amplitude * sin((2 * PI / period) * t + phase);
+    qreal m_time;
+    qreal m_deltaTime;
     qreal m_amplitude;
     qreal m_period;
     qreal m_phase;
-    qreal m_time;
-    qreal m_deltaTime;
 
+    // Graph
     QValueAxis *m_xAxis;
     QValueAxis *m_yAxis;
 
+    // Controls
     QSpinBox *m_perSpinBox;
     QSlider *m_perSlider;
     QLabel *m_perLabel;
@@ -71,7 +81,6 @@ private:
     // Console
     QListWidget *m_console;
     QLineEdit *m_input;
-
 };
 
 #endif // MAINWINDOW_H
