@@ -6,6 +6,10 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+// Testing
+#include <QRandomGenerator>
+// https://code.qt.io/cgit/qt/qtcharts.git/tree/examples/charts/zoomlinechart?h=6.5
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
     resize(1280, 720);
@@ -21,9 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     createConsoleDock();
 
     // Sets a timer to update the graph in milliseconds
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update));
-    timer->start(1000 * m_deltaTime);
+    //QTimer *timer = new QTimer(this);
+    //connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update));
+    //timer->start(1000 * m_deltaTime);
 }
 
 MainWindow::~MainWindow() {
@@ -53,35 +57,66 @@ void MainWindow::createContextMenu() {
 }
 
 void MainWindow::createChartView() {
-    m_time = 0.0;
-    m_deltaTime = 0.01;
+    //m_time = 0.0;
+    //m_deltaTime = 0.01;
 
-    m_sine = new QLineSeries();
-    m_cosine = new QLineSeries();
+    //m_sine = new QLineSeries();
+    //m_cosine = new QLineSeries();
 
     // Creates the graph
-    auto graphView = new QChartView();
-    graphView->chart()->legend()->hide();
-    graphView->chart()->setTitle("ARC Oscilloscope");
+    //auto graphView = new QChartView();
+    //graphView->chart()->legend()->hide();
+    //graphView->chart()->setTitle("ARC Oscilloscope");
 
-    m_xAxis = new QValueAxis();
-    m_xAxis->setTitleText("Time (s");
-    graphView->chart()->addAxis(m_xAxis, Qt::AlignBottom);
+    //m_xAxis = new QValueAxis();
+    //m_xAxis->setTitleText("Time (s");
+    //graphView->chart()->addAxis(m_xAxis, Qt::AlignBottom);
 
-    m_yAxis = new QValueAxis();
-    m_yAxis->setTitleText("Voltage (V");
-    graphView->chart()->addAxis(m_yAxis, Qt::AlignLeft);
+    //m_yAxis = new QValueAxis();
+    //m_yAxis->setTitleText("Voltage (V");
+    //graphView->chart()->addAxis(m_yAxis, Qt::AlignLeft);
 
     // Adds (co)sine wave to the graph
-    graphView->chart()->addSeries(m_sine);
-    m_sine->attachAxis(m_xAxis);
-    m_sine->attachAxis(m_yAxis);
+    //graphView->chart()->addSeries(m_sine);
+    //m_sine->attachAxis(m_xAxis);
+    //m_sine->attachAxis(m_yAxis);
 
-    graphView->chart()->addSeries(m_cosine);
-    m_cosine->attachAxis(m_xAxis);
-    m_cosine->attachAxis(m_yAxis);
+    //graphView->chart()->addSeries(m_cosine);
+    //m_cosine->attachAxis(m_xAxis);
+    //m_cosine->attachAxis(m_yAxis);
 
-    setCentralWidget(graphView);
+    //setCentralWidget(graphView);
+
+
+
+    m_sine = new QLineSeries();
+    for (int i = 0; i < 500; ++i) {
+        //QPointF sine((qreal) phase, amplitude * qSin(2 * M_PI / period + phase));
+        QPointF sine((qreal) i, 50 * qSin(M_PI / 50 * i));
+        sine.ry() += QRandomGenerator::global()->bounded(5);
+        *m_sine << sine;
+    }
+
+    m_cosine = new QLineSeries();
+    for (int i = 0; i < 500; ++i) {
+        QPointF cosine((qreal) i, 50 * qCos(M_PI / 50 * i));
+        cosine.ry() += QRandomGenerator::global()->bounded(5);
+        *m_cosine << cosine;
+    }
+
+    // Creates the graph
+    auto chart = new QChart();
+    chart->addSeries(m_sine);
+    chart->addSeries(m_cosine);
+    chart->setTitle("ARC Oscilloscope");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->legend()->hide();
+    chart->createDefaultAxes();
+
+    auto chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    setCentralWidget(chartView);
 }
 
 void MainWindow::createControlsDock() {
@@ -179,26 +214,26 @@ void MainWindow::execute(const QString &command) {
 }
 
 void MainWindow::update() {
-    m_time += m_deltaTime;
+    // m_time += m_deltaTime;
 
     // Restarts plotting if wave reaches end of range
-    if (m_time > m_period) {
-        m_time = 0.0;
-        m_sine->clear();
-        m_cosine->clear();
-    }
+    //if (m_time > m_period) {
+    //    m_time = 0.0;
+    //    m_sine->clear();
+    //    m_cosine->clear();
+    //}
 
     // Gets y-coordinate of the (co)sine function
-    qreal ySin = m_amplitude * sin((2 * M_PI / m_period) * m_time + m_phase);
-    qreal yCos = m_amplitude * cos((2 * M_PI / m_period) * m_time + m_phase);
+    //qreal ySin = m_amplitude * sin((2 * M_PI / m_period) * m_time + m_phase);
+    //qreal yCos = m_amplitude * cos((2 * M_PI / m_period) * m_time + m_phase);
 
     // Plots x & y points to the graph
-    m_sine->append(m_time, ySin);
-    m_cosine->append(m_time, yCos);
+    //m_sine->append(m_time, ySin);
+    //m_cosine->append(m_time, yCos);
 
     // Sets bounds for wave function
-    m_xAxis->setRange(0, m_period);
-    m_yAxis->setRange((-m_amplitude - 2), (m_amplitude + 2));
+    //m_xAxis->setRange(0, m_period);
+    //m_yAxis->setRange((-m_amplitude - 2), (m_amplitude + 2));
 }
 
 void MainWindow::amplitudeControl() {
