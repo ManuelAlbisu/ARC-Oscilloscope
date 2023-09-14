@@ -9,6 +9,8 @@
 // Testing
 #include <QRandomGenerator>
 #include <QEasingCurve>
+#include <QDebug>
+#include <QElapsedTimer>
 // https://code.qt.io/cgit/qt/qtcharts.git/tree/examples/charts/zoomlinechart?h=6.5
 
 MainWindow::MainWindow(QWidget *parent)
@@ -24,22 +26,14 @@ MainWindow::MainWindow(QWidget *parent)
     createChartView();
     createControlsDock();
     createConsoleDock();
-
-    // Sets a timer to update the graph in milliseconds
-    //QTimer *timer = new QTimer(this);
-    //connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::update));
-    //timer->start(1000 * m_deltaTime);
 }
 
 MainWindow::~MainWindow() {
-    // MainWindow destructor
+
 }
 
 void MainWindow::createActions() {
-    // Clear console action
-    //m_clearConsoleAction = new QAction("&Clear");
-    //m_clearConsoleAction->setShortcut("CTRL+C");
-    //m_clearConsoleAction->setStatusTip("Clear previous commands from console.");
+
 }
 
 void MainWindow::createToolBar() {
@@ -52,9 +46,7 @@ void MainWindow::createMenuBar() {
 }
 
 void MainWindow::createContextMenu() {
-    // Console context menu
-    //m_console->addAction(m_clearConsoleAction);
-    //m_console->setContextMenuPolicy(Qt::ActionsContextMenu);
+
 }
 
 void MainWindow::createChartView() {
@@ -133,6 +125,7 @@ void MainWindow::createControlsDock() {
     amplitudeControl();
     periodControl();
     phaseControl();
+    zoomControl();
 
     // Creates the dock
     QDockWidget *dock = new QDockWidget("Controls", this);
@@ -211,6 +204,8 @@ void MainWindow::consoleCommandInput() {
 }
 
 void MainWindow::execute(const QString &command) {
+    QStringList list = command.split(QRegularExpression("\\s+"));
+
     if (command.toLower() == "clear")
         m_console->clear();
     else if (command.toLower() == "info") {
@@ -219,6 +214,20 @@ void MainWindow::execute(const QString &command) {
         m_console->addItem("Amplitude: ");
         m_console->addItem("Phase: ");
         m_console->addItem("----------------");
+    } else if (list.size() == 3 && list.at(0).toLower() == "set") {
+        if (list.at(1).toLower() == "amplitude") {
+            auto amplitude = list.at(2).toInt();
+            setAmplitude(amplitude);
+            m_ampSpinBox->setValue(amplitude);
+        } else if (list.at(1).toLower() == "period") {
+            auto period = list.at(2).toInt();
+            setPeriod(period);
+            m_perSpinBox->setValue(period);
+        } else if (list.at(1).toLower() == "phase") {
+            auto phase = list.at(2).toInt();
+            setPhase(phase);
+            m_phaseSpinBox->setValue(phase);
+        }
     }
 }
 
@@ -246,12 +255,20 @@ void MainWindow::update() {
 }
 
 void MainWindow::waveFunctions() {
+    amplitudeControl();
+    periodControl();
+    phaseControl();
+
+    // TODO: Create timer
+
+
     // Sine wave function
     m_sine = new QLineSeries();
-    for (int i = 0; i < 500; ++i) {
+
+    for (int i = 0; i < 1000; ++i) {
         //QPointF sine((qreal) phase, amplitude * qSin(2 * M_PI / period + phase));
-        QPointF sine((qreal) i, 50 * qSin(2 * M_PI / 50 * i));
-        sine.ry() += QRandomGenerator::global()->bounded(5);
+        QPointF sine((qreal) i, amplitude() * qSin(((2 * M_PI / period()) * i) + phase()));
+        sine.ry() += QRandomGenerator::global()->bounded(1);
         *m_sine << sine;
     }
 
@@ -266,7 +283,7 @@ void MainWindow::waveFunctions() {
 
 void MainWindow::amplitudeControl() {
     const int initVal = 2; // Initial value
-    const int upper = 10;  // Upper limit
+    const int upper = 10;  // Um_amplitude.setAmppper limit
     const int lower = 0;   // Lower limit
 
     // Creates widgets
@@ -286,11 +303,12 @@ void MainWindow::amplitudeControl() {
     connect(m_ampSlider, SIGNAL(valueChanged(int)), this, SLOT(setAmplitude(int)));
 
     // Sets starting value
+    setAmplitude(initVal);
     m_ampSpinBox->setValue(initVal);
 }
 
 void MainWindow::periodControl() {
-    const int initVal = 5; // Initial value
+    const int initVal = 30; // Initial value
     const int upper = 60;  // Upper limit
     const int lower = 1;   // Lower limit
 
@@ -311,6 +329,7 @@ void MainWindow::periodControl() {
     connect(m_perSlider, SIGNAL(valueChanged(int)), this, SLOT(setPeriod(int)));
 
     // Sets starting value
+    setPeriod(initVal);
     m_perSpinBox->setValue(initVal);
 }
 
@@ -335,7 +354,12 @@ void MainWindow::phaseControl() {
     connect(m_phaseDial, SIGNAL(valueChanged(int)), this, SLOT(setPhase(int)));
 
     // Sets starting value
+    setPhase(initVal);
     m_phaseSpinBox->setValue(initVal);
+}
+
+void MainWindow::zoomControl() {
+
 }
 
 void MainWindow::setAmplitude(int amplitude) {
@@ -348,4 +372,16 @@ void MainWindow::setPeriod(int period) {
 
 void MainWindow::setPhase(int phase) {
     m_phase = phase;
+}
+
+qreal MainWindow::amplitude() {
+    return m_amplitude;
+}
+
+qreal MainWindow::period() {
+    return m_period;
+}
+
+qreal MainWindow::phase() {
+    return m_phase;
 }

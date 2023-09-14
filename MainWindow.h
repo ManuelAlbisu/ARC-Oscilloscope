@@ -28,12 +28,16 @@ private slots:
     void periodControl();
     void amplitudeControl();
     void phaseControl();
+    void zoomControl();
     void consoleCommandInput();
 
     // Accessors
     void setAmplitude(int amplitude);
     void setPeriod(int period);
     void setPhase(int phase);
+    qreal amplitude();
+    qreal period();
+    qreal phase();
 
 private:
     void waveFunctions();
