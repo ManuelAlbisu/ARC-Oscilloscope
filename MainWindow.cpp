@@ -8,6 +8,7 @@
 
 // Testing
 #include <QRandomGenerator>
+#include <QEasingCurve>
 // https://code.qt.io/cgit/qt/qtcharts.git/tree/examples/charts/zoomlinechart?h=6.5
 
 MainWindow::MainWindow(QWidget *parent)
@@ -89,32 +90,40 @@ void MainWindow::createChartView() {
 
 
 
-    m_sine = new QLineSeries();
-    for (int i = 0; i < 500; ++i) {
-        //QPointF sine((qreal) phase, amplitude * qSin(2 * M_PI / period + phase));
-        QPointF sine((qreal) i, 50 * qSin(M_PI / 50 * i));
-        sine.ry() += QRandomGenerator::global()->bounded(5);
-        *m_sine << sine;
-    }
+    // Supplies wave functions
+    waveFunctions();
 
-    m_cosine = new QLineSeries();
-    for (int i = 0; i < 500; ++i) {
-        QPointF cosine((qreal) i, 50 * qCos(M_PI / 50 * i));
-        cosine.ry() += QRandomGenerator::global()->bounded(5);
-        *m_cosine << cosine;
-    }
-
-    // Creates the graph
+    // Creates the graph and graph view
     auto chart = new QChart();
-    chart->addSeries(m_sine);
-    chart->addSeries(m_cosine);
-    chart->setTitle("ARC Oscilloscope");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
     chart->legend()->hide();
-    chart->createDefaultAxes();
 
     auto chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+
+    // Graph decoration
+    chart->setTitle("ARC Oscilloscope");
+    chart->setTheme(QChart::ChartThemeBlueCerulean);
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setAnimationDuration(15000);
+    chart->setAnimationEasingCurve(QEasingCurve::Linear);
+
+    // Creates the axes
+    m_xAxis = new QValueAxis();
+    m_xAxis->setTitleText("Time (s)");
+    chartView->chart()->addAxis(m_xAxis, Qt::AlignBottom);
+
+    m_yAxis = new QValueAxis();
+    m_yAxis->setTitleText("Voltage (V)");
+    chartView->chart()->addAxis(m_yAxis, Qt::AlignLeft);
+
+    // Adds wave functions to the graph
+    chartView->chart()->addSeries(m_sine);
+    m_sine->attachAxis(m_xAxis);
+    m_sine->attachAxis(m_yAxis);
+
+    chartView->chart()->addSeries(m_cosine);
+    m_cosine->attachAxis(m_xAxis);
+    m_cosine->attachAxis(m_yAxis);
 
     setCentralWidget(chartView);
 }
@@ -234,6 +243,25 @@ void MainWindow::update() {
     // Sets bounds for wave function
     //m_xAxis->setRange(0, m_period);
     //m_yAxis->setRange((-m_amplitude - 2), (m_amplitude + 2));
+}
+
+void MainWindow::waveFunctions() {
+    // Sine wave function
+    m_sine = new QLineSeries();
+    for (int i = 0; i < 500; ++i) {
+        //QPointF sine((qreal) phase, amplitude * qSin(2 * M_PI / period + phase));
+        QPointF sine((qreal) i, 50 * qSin(2 * M_PI / 50 * i));
+        sine.ry() += QRandomGenerator::global()->bounded(5);
+        *m_sine << sine;
+    }
+
+    // Cosine wave function
+    m_cosine = new QLineSeries();
+    for (int i = 0; i < 500; ++i) {
+        QPointF cosine((qreal) i, 50 * qCos(2 * M_PI / 50 * i));
+        cosine.ry() += QRandomGenerator::global()->bounded(5);
+        *m_cosine << cosine;
+    }
 }
 
 void MainWindow::amplitudeControl() {

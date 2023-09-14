@@ -36,6 +36,7 @@ private slots:
     void setPhase(int phase);
 
 private:
+    void waveFunctions();
     void createActions();
     void createToolBar();
     void createMenuBar();
@@ -51,9 +52,10 @@ private:
     // Menus
     QMenu *m_viewMenu;
 
-    // Wave function
+    // Wave functions
     QLineSeries *m_sine;
     QLineSeries *m_cosine;
+    QLineSeries *m_square;
 
     qreal m_time;
     qreal m_deltaTime;
