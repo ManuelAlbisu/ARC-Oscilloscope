@@ -3,17 +3,20 @@
 
 #include <QMainWindow>
 
+#include <QApplication>
 #include <QLineSeries>
 #include <QValueAxis>
 #include <QListWidget>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMenuBar>
+#include <QToolBar>
 #include <QAction>
 #include <QSpinBox>
 #include <QSlider>
 #include <QLabel>
 #include <QDial>
+#include <QCheckBox>
 
 class MainWindow : public QMainWindow
 {
@@ -24,12 +27,19 @@ public:
     ~MainWindow();
 
 private slots:
-    void update();
-    void periodControl();
+    void saveGraph();
+    void openGraph();
+    void resetGraph();
+    void exit();
+    void consoleCommandInput();
+    void execute(const QString &command);
+    void waveControl();
     void amplitudeControl();
+    void periodControl();
     void phaseControl();
     void zoomControl();
-    void consoleCommandInput();
+    void sineToggle();
+    void cosineToggle();
 
     // Accessors
     void setAmplitude(int amplitude);
@@ -42,27 +52,33 @@ private slots:
 private:
     void waveFunctions();
     void createActions();
-    void createToolBar();
     void createMenuBar();
+    void createToolBar();
     void createContextMenu();
     void createChartView();
     void createControlsDock();
     void createConsoleDock();
-    void execute(const QString &command);
 
     // Actions
-    QAction *m_clearConsoleAction;
+    QAction *m_saveGraphAction;
+    QAction *m_openGraphAction;
+    QAction *m_resetGraphAction;
+    QAction *m_exitAction;
+    QAction *m_sinToggleAction;
+    QAction *m_cosToggleAction;
 
     // Menus
+    QMenu *m_fileMenu;
     QMenu *m_viewMenu;
+
+    // Toolbars
+    QToolBar *m_fileToolBar;
+    QToolBar *m_waveToolBar;
 
     // Wave functions
     QLineSeries *m_sine;
     QLineSeries *m_cosine;
-    QLineSeries *m_square;
 
-    qreal m_time;
-    qreal m_deltaTime;
     qreal m_amplitude;
     qreal m_period;
     qreal m_phase;
@@ -83,6 +99,11 @@ private:
     QSpinBox *m_phaseSpinBox;
     QDial *m_phaseDial;
     QLabel *m_phaseLabel;
+
+    QCheckBox *m_sinCheckBox;
+    QLabel *m_sinLabel;
+    QCheckBox *m_cosCheckBox;
+    QLabel *m_cosLabel;
 
     // Console
     QListWidget *m_console;
